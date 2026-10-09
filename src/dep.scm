@@ -1,1 +1,0 @@
-(define CONSTANT "constant\n")

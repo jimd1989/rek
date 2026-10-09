@@ -1,8 +1,0 @@
-(include "./src/dep.scm")
-(import (scheme process-context) (scheme write))
-(define (main)
-  (let ((args (command-line)))
-    (display (cadr args))
-    (newline)
-    (display CONSTANT)))
-(main)
