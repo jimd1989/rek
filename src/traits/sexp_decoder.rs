@@ -5,7 +5,9 @@ pub trait SexpDecoder: Sized {
 
   fn decode_at<A: SexpDecoder>(v: &Value, key: &str) -> Result<A, String> {
     let ω = v.get(key).ok_or_else(|| format!("Missing field {}", key))?;
-    A::decode(ω).map_err(|e| format!("Error at {}: {}", key, e))
+    let α = ω.as_cons().ok_or_else(|| format!("Not list {}", ω))?;
+    let h = α.list_iter().nth(0).ok_or_else(|| format!("Empty {}", key))?;
+    A::decode(h).map_err(|e| format!("Error at {}: {}", key, e))
   }
 
   fn decode_option<A: SexpDecoder>(v: &Value, key: &str)

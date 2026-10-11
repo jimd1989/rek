@@ -1,6 +1,7 @@
 use lexpr::Value;
 use crate::traits::sexp_decoder::SexpDecoder;
 
+#[derive(Debug)]
 pub struct RecordingOptions {
   pub channels: i64,
   pub volume: Option<Vec<f64>>,
