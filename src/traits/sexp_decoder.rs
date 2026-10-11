@@ -2,15 +2,54 @@ use lexpr::Value;
 
 pub trait SexpDecoder: Sized {
   fn decode(v: &Value) -> Result<Self, String>;
-    fn decode_string(v: &Value, key: &str) -> Result<String, String> {
-        v.get(key)
-            .and_then(|val| val.as_str())
-            .map(|s| s.to_string())
-            .ok_or_else(|| format!("Missing or invalid string field '{}'", key))
-    }
-    fn decode_i64(v: &Value, key: &str) -> Result<i64, String> {
-        v.get(key)
-            .and_then(|val| val.as_i64())
-            .ok_or_else(|| format!("Missing or invalid i64 field '{}'", key))
-    }
+
+  fn decode_at<A: SexpDecoder>(v: &Value, key: &str) -> Result<A, String> {
+    let ω = v.get(key).ok_or_else(|| format!("Missing field {}", key))?;
+    A::decode(ω).map_err(|e| format!("Error at {}: {}", key, e))
+  }
+
+  fn decode_option<A: SexpDecoder>(v: &Value, key: &str)
+    -> Result<Option<A>, String> {
+      match v.get(key) {
+        None    => Ok(None),
+        Some(ω) => A::decode(ω).map(Some)
+      }
+  }
+}
+
+impl SexpDecoder for i64 {
+  fn decode(v: &Value) -> Result<Self, String> {
+    v.as_i64().ok_or_else(|| format!("Expected i64, got {:?}", v))
+  }
+}
+
+impl SexpDecoder for f64 {
+  fn decode(v: &Value) -> Result<Self, String> {
+    v.as_f64().ok_or_else(|| format!("Expected f64, got {:?}", v))
+  }
+}
+
+impl SexpDecoder for String {
+  fn decode(v: &Value) -> Result<Self, String> {
+    v.as_str()
+      .map(|ω| ω.to_string())
+      .ok_or_else(|| format!("Expected string, got {:?}", v))
+  }
+}
+
+impl SexpDecoder for bool {
+  fn decode(v: &Value) -> Result<Self, String> {
+    v.as_bool().ok_or_else(|| format!("Expected bool, got {:?}", v))
+  }
+}
+
+impl<A: SexpDecoder> SexpDecoder for Vec<A> {
+
+  fn decode(v: &Value) -> Result<Self, String> {
+    let ω = v.as_cons().ok_or_else(|| format!("Expected list, got {:?}", v))?;
+    ω.list_iter()
+      .enumerate()
+      .map(|(n, α)| A::decode(α).map_err(|e| format!("Error at {}: {}", n, e)))
+      .collect()
+  }
 }

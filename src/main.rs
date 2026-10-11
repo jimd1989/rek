@@ -1,7 +1,11 @@
 use lexpr::{sexp, Value};
+use crate::models::parse::recording_options::RecordingOptions;
+use crate::traits::sexp_decoder::SexpDecoder;
 
 mod models {
-  pub mod recording_options;
+  pub mod parse {
+    pub mod recording_options;
+  }
 }
 
 mod traits {
@@ -9,11 +13,8 @@ mod traits {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-  let input = r#"((a 1)(b 2))"#;
+  let input = r#"(recording (channels 2) (volume 1.0 1.0))"#;
   let v: Value = lexpr::from_str(input)?;
-  let updated = sexp!((,v (c 3 (d 4))));
-  let output = updated.to_string();
-  let d: &Value = &updated["c"]["e"][0];
-  println!("{}", d);
+  let ω = RecordingOptions::decode_at::<RecordingOptions>(&v, "recording");
   Ok(())
 }
