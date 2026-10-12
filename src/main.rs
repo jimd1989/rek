@@ -1,10 +1,13 @@
-use lexpr::Value;
-use crate::models::parse::recording_options::RecordingOptions;
+use std::fs::File;
+use std::io::BufReader;
+use crate::models::parse::rek_session::RekSession;
 use crate::traits::sexp_decoder::SexpDecoder;
 
 mod models {
   pub mod parse {
     pub mod recording_options;
+    pub mod rek_options;
+    pub mod rek_session;
   }
 }
 
@@ -13,9 +16,10 @@ mod traits {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-  let input = r#"((recording ((channels 2) (volume 1.0 1.0))))"#;
-  let v: Value = lexpr::from_str(input)?;
-  let ω = RecordingOptions::decode_at::<RecordingOptions>(&v, "recording")?;
+  let f = File::open("./examples/example.scm")?;
+  let r = BufReader::new(f);
+  let v = lexpr::from_reader(r)?;
+  let ω = RekSession::decode(&v)?;
   println!("{:?}", ω);
   Ok(())
 }

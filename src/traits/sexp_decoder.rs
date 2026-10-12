@@ -14,7 +14,7 @@ pub trait SexpDecoder: Sized {
     -> Result<Option<A>, String> {
       match v.get(key) {
         None    => Ok(None),
-        Some(ω) => A::decode(ω).map(Some)
+        Some(_) => A::decode_at(v, key).map(Some)
       }
   }
 }
@@ -46,7 +46,6 @@ impl SexpDecoder for bool {
 }
 
 impl<A: SexpDecoder> SexpDecoder for Vec<A> {
-
   fn decode(v: &Value) -> Result<Self, String> {
     let ω = v.as_cons().ok_or_else(|| format!("Expected list, got {:?}", v))?;
     ω.list_iter()
