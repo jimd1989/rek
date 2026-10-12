@@ -1,5 +1,6 @@
 use std::fs::File;
-use std::io::BufReader;
+use std::io::self;
+use lexpr::print::Options;
 use crate::models::parse::rek_session::RekSession;
 use crate::traits::sexp_decoder::SexpDecoder;
 
@@ -16,10 +17,9 @@ mod traits {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-  let f = File::open("./examples/example.scm")?;
-  let r = BufReader::new(f);
-  let v = lexpr::from_reader(r)?;
+  let i = io::stdin().lock();
+  let v = lexpr::from_reader(i)?;
   let ω = RekSession::decode(&v)?;
-  println!("{:?}", ω);
+  lexpr::print::to_writer_custom(io::stdout().lock(), &v, Options::default())?;
   Ok(())
 }
