@@ -6,5 +6,6 @@ pub fn device_options_to_sio_par(o: &DeviceOptions, p: &mut Par) {
   p.bps = o.bps;
   p.rate = o.rate;
   p.appbufsz = o.appbufsz;
+  p.pchan = o.playback.channels;
   p.rchan = o.recording.channels;
 }

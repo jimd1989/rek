@@ -1,10 +1,12 @@
 use lexpr::Value;
+use crate::models::parse::playback_options::PlaybackOptions;
 use crate::models::parse::recording_options::RecordingOptions;
 use crate::traits::sexp_decoder::SexpDecoder;
 
 #[derive(Clone)]
 pub struct DeviceOptions {
   pub device: Option<String>,
+  pub playback: PlaybackOptions,
   pub recording: RecordingOptions,
   pub bits: u32,
   pub bps: u32,
@@ -17,6 +19,7 @@ impl Default for DeviceOptions {
   fn default() -> Self {
     Self {
       device: None,
+      playback: PlaybackOptions::default(),
       recording: RecordingOptions::default(),
       bits: 16,
       bps: 2,
@@ -31,6 +34,7 @@ impl SexpDecoder for DeviceOptions {
     let ω = DeviceOptions::default();
     Ok(DeviceOptions {
       device: Self::decode_option(v, "device")?,
+      playback: Self::decode_at(v, "playback")?,
       recording: Self::decode_at(v, "recording")?,
       bits: ω.bits,
       bps: ω.bps,

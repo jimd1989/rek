@@ -27,7 +27,10 @@ pub fn play(r: &RekSession) -> Result<(), Box<dyn std::error::Error>> {
   if (o.rate != p.rate) {
     return Err(format!("Expected {} Hz; got {}", o.rate, p.rate).into());
   }
-  /* Check pchan eventually */
+  if (o.playback.channels != p.pchan) {
+    return Err(format!("Expected {} chans; got {}",
+        o.playback.channels, p.pchan).into());
+  }
   let mut buf = vec![0u8; p.appbufsz as usize];
   if !(sio.start()) {
     return Err("Error starting sndio".into());

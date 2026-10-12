@@ -12,6 +12,7 @@ mod actions {
 mod models {
   pub mod parse {
     pub mod device_options;
+    pub mod playback_options;
     pub mod recording_options;
     pub mod rek_options;
     pub mod rek_session;
