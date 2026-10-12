@@ -1,8 +1,13 @@
 #![allow(warnings)]
 use std::io::self;
 use lexpr::print::Options;
+use crate::actions::play::play;
 use crate::models::parse::rek_session::RekSession;
 use crate::traits::sexp_decoder::SexpDecoder;
+
+mod actions {
+  pub mod play;
+}
 
 mod models {
   pub mod parse {
@@ -24,7 +29,8 @@ mod transformers {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
   let i = io::stdin().lock();
   let v = lexpr::from_reader(i)?;
-  let _ = RekSession::decode(&v)?;
+  let r = RekSession::decode(&v)?;
+  play(&r);
   lexpr::print::to_writer_custom(io::stdout().lock(), &v, Options::default())?;
   Ok(())
 }
