@@ -1,3 +1,5 @@
+use std::fs::File;
+use std::io::BufReader;
 use lexpr::Value;
 
 pub trait SexpDecoder: Sized {
@@ -12,10 +14,10 @@ pub trait SexpDecoder: Sized {
 
   fn decode_option<A: SexpDecoder>(v: &Value, key: &str)
     -> Result<Option<A>, String> {
-      match v.get(key) {
-        None    => Ok(None),
-        Some(_) => A::decode_at(v, key).map(Some)
-      }
+    match v.get(key) {
+      None    => Ok(None),
+      Some(_) => A::decode_at(v, key).map(Some)
+    }
   }
 }
 
@@ -50,6 +52,14 @@ impl SexpDecoder for String {
 impl SexpDecoder for bool {
   fn decode(v: &Value) -> Result<Self, String> {
     v.as_bool().ok_or_else(|| format!("Expected bool, got {:?}", v))
+  }
+}
+
+impl SexpDecoder for BufReader<File> {
+  fn decode(v: &Value) -> Result<Self, String> {
+    let name = String::decode(v)?;
+    let file = File::open(name).map_err(|e| e.to_string())?;
+    Ok(BufReader::new(file))
   }
 }
 
