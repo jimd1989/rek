@@ -1,4 +1,4 @@
-use std::fs::File;
+#![allow(warnings)]
 use std::io::self;
 use lexpr::print::Options;
 use crate::models::parse::rek_session::RekSession;
@@ -15,6 +15,10 @@ mod models {
 
 mod traits {
   pub mod sexp_decoder;
+}
+
+mod transformers {
+  pub mod device_options_to_sio_par;
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
