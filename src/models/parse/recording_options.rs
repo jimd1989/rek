@@ -1,8 +1,9 @@
 use lexpr::Value;
 use crate::traits::sexp_decoder::SexpDecoder;
 
+#[derive(Clone)]
 pub struct RecordingOptions {
-  pub channels: i64,
+  pub channels: u32,
   pub volume: Vec<f64>,
 }
 
@@ -10,7 +11,7 @@ impl Default for RecordingOptions {
   fn default() -> Self {
     Self {
       channels: 1,
-      volume: vec![1.0],
+      volume: vec![],
     }
   }
 }
@@ -18,7 +19,7 @@ impl Default for RecordingOptions {
 impl SexpDecoder for RecordingOptions {
   fn decode(v: &Value) -> Result<Self, String> {
     let ω = RecordingOptions::default();
-    let ch = Self::decode_option::<i64>(v, "channels")?;
+    let ch = Self::decode_option::<u32>(v, "channels")?;
     let vo = Self::decode_option::<Vec<f64>>(v, "volume")?;
     let channels = ch.unwrap_or(ω.channels);
     let volume = match (channels, vo) {

@@ -19,9 +19,17 @@ pub trait SexpDecoder: Sized {
   }
 }
 
-impl SexpDecoder for i64 {
+impl SexpDecoder for u32 {
   fn decode(v: &Value) -> Result<Self, String> {
-    v.as_i64().ok_or_else(|| format!("Expected i64, got {:?}", v))
+    let n = v.as_u64().ok_or_else(|| format!("Expected u32, got {:?}", v))?;
+    u32::try_from(n).map_err(|_| format!("{} too big", n))
+  }
+}
+
+impl SexpDecoder for i32 {
+  fn decode(v: &Value) -> Result<Self, String> {
+    let n = v.as_i64().ok_or_else(|| format!("Expected i32, got {:?}", v))?;
+    i32::try_from(n).map_err(|_| format!("{} too big", n))
   }
 }
 
