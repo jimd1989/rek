@@ -2,7 +2,6 @@ use lexpr::Value;
 use crate::models::parse::rek_options::RekOptions;
 use crate::traits::sexp_decoder::SexpDecoder;
 
-#[derive(Debug)]
 pub struct RekSession {
   options: RekOptions,
 }

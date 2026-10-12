@@ -6,6 +6,7 @@ use crate::traits::sexp_decoder::SexpDecoder;
 
 mod models {
   pub mod parse {
+    pub mod device_options;
     pub mod recording_options;
     pub mod rek_options;
     pub mod rek_session;
@@ -19,7 +20,7 @@ mod traits {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
   let i = io::stdin().lock();
   let v = lexpr::from_reader(i)?;
-  let ω = RekSession::decode(&v)?;
+  let _ = RekSession::decode(&v)?;
   lexpr::print::to_writer_custom(io::stdout().lock(), &v, Options::default())?;
   Ok(())
 }
