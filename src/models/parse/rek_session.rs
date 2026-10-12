@@ -3,7 +3,7 @@ use crate::models::parse::rek_options::RekOptions;
 use crate::traits::sexp_decoder::SexpDecoder;
 
 pub struct RekSession {
-  options: RekOptions,
+  pub options: RekOptions,
 }
 
 impl SexpDecoder for RekSession {
