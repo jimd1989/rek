@@ -11,11 +11,11 @@
         (playback ()))))
     )
    (export ()))
- (tracks (((filename "./path/to/a.pcm")
-           (volume ((1.0 0.0)))
+ (tracks (((file "./examples/440.pcm")
+           (volume (1.0 0.0))
            (tag "this isn't even parsed; just for your reference"))
           ; every track is a monophonic PCM stream. recording n channels creates
           ; n separate track files that are populated here.
-          ((filename "./path/to/b.pcm")
-           (volume ((0.0 1.0)))
+          ((file "./examples/880.pcm")
+           (volume (0.0 1.0))
            (tag "another tag")))))

@@ -16,6 +16,7 @@ mod models {
     pub mod recording_options;
     pub mod rek_options;
     pub mod rek_session;
+    pub mod track;
   }
 }
 
