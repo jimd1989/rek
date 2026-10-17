@@ -9,11 +9,16 @@ pub struct RekSession {
 }
 
 impl SexpDecoder for RekSession {
-  /* Enforce channel consistency for tracks */
   fn decode(v: &Value) -> Result<Self, String> {
-    Ok(RekSession {
-      options: Self::decode_at(v, "options")?,
-      tracks: Self::decode_at(v, "tracks")?,
-    })
+    let options = Self::decode_at::<RekOptions>(v, "options")?;
+    let tracks = Self::decode_at::<Vec<Track>>(v, "tracks")?;
+    let ρ = options.io.playback.volume.len();
+    for t in &tracks {
+      let vol = t.volume.len();
+      if (vol != ρ) {
+        return Err(format!("Expected {} track volumes, got {}", ρ, vol));
+      }
+    }
+    Ok(RekSession { options, tracks })
   }
 }

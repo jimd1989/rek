@@ -10,6 +10,10 @@ mod actions {
 }
 
 mod models {
+  pub mod audio {
+    pub mod play_track;
+    pub mod play_tracks;
+  }
   pub mod parse {
     pub mod device_options;
     pub mod playback_options;
