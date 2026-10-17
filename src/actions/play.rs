@@ -2,6 +2,7 @@ use std::ffi::CString;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use sndio::{Mode, Sndio};
+use crate::models::audio::play_tracks::PlayTracks;
 use crate::models::parse::rek_session::RekSession;
 use crate::transformers::device_options_to_sio_par::device_options_to_sio_par;
 
@@ -31,13 +32,12 @@ pub fn play(r: &RekSession) -> Result<(), Box<dyn std::error::Error>> {
     return Err(format!("Expected {} chans; got {}",
         o.playback.channels, p.pchan).into());
   }
-  let mut buf = vec![0u8; p.appbufsz as usize];
   if !(sio.start()) {
     return Err("Error starting sndio".into());
   }
+  let pt = PlayTracks::new(p, r);
   while (running.load(Ordering::SeqCst)) {
-    /* Actually use audio here */
-    sio.write(&buf);
+    sio.write(&pt.out_buf);
   }
   if !(sio.stop()) {
     return Err("Error stopping sndio".into());
