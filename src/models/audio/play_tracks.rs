@@ -4,6 +4,7 @@ use crate::models::parse::rek_session::RekSession;
 
 pub struct PlayTracks<'a> {
   mix_buf: Vec<f64>,
+  file_buf: Vec<u8>,
   pub out_buf: Vec<u8>,
   tracks: Vec<PlayTrack<'a>>,
 }
@@ -15,9 +16,12 @@ impl<'a> PlayTracks<'a> {
     let out_len = mix_len * (p.bps as usize);
     let mix_buf = vec![0.0; mix_len];
     let out_buf = vec![0; out_len];
+    let chan_len = (p.appbufsz * p.bps) as usize;
+    let file_buf = vec![0; chan_len];
     let plays = tracks.iter_mut().map(move |t| PlayTrack::new(t, p)).collect();
     Self {
       mix_buf: mix_buf,
+      file_buf: file_buf,
       out_buf: out_buf,
       tracks: plays,
     }
@@ -25,7 +29,7 @@ impl<'a> PlayTracks<'a> {
   pub fn mix(&mut self) -> Result<(), Box<dyn std::error::Error>> {
     self.mix_buf.fill(0.0);
     for t in &mut self.tracks {
-      t.mix(&mut self.mix_buf)?;
+      t.mix(&mut self.mix_buf, &mut self.file_buf)?;
     }
     let mut n = 0;
     for (f, bs) in self.mix_buf.iter().zip(self.out_buf.chunks_exact_mut(2)) {
