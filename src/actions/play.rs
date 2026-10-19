@@ -6,7 +6,7 @@ use crate::models::audio::play_tracks::PlayTracks;
 use crate::models::parse::rek_session::RekSession;
 use crate::transformers::device_options_to_sio_par::device_options_to_sio_par;
 
-pub fn play(r: &RekSession) -> Result<(), Box<dyn std::error::Error>> {
+pub fn play(r: &mut RekSession) -> Result<(), Box<dyn std::error::Error>> {
   let running = Arc::new(AtomicBool::new(true));
   let running_clone = Arc::clone(&running);
   ctrlc::set_handler(move || { running_clone.store(false, Ordering::SeqCst) });
@@ -35,8 +35,9 @@ pub fn play(r: &RekSession) -> Result<(), Box<dyn std::error::Error>> {
   if !(sio.start()) {
     return Err("Error starting sndio".into());
   }
-  let pt = PlayTracks::new(p, r);
+  let mut pt = PlayTracks::new(p, r);
   while (running.load(Ordering::SeqCst)) {
+    pt.mix()?;
     sio.write(&pt.out_buf);
   }
   if !(sio.stop()) {

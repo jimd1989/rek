@@ -35,8 +35,8 @@ mod transformers {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
   let i = io::stdin().lock();
   let v = lexpr::from_reader(i)?;
-  let r = RekSession::decode(&v)?;
-  play(&r);
+  let mut r = RekSession::decode(&v)?;
+  play(&mut r);
   lexpr::print::to_writer_custom(io::stdout().lock(), &v, Options::default())?;
   Ok(())
 }
