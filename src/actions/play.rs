@@ -36,6 +36,7 @@ pub fn play(r: &mut RekSession) -> Result<(), Box<dyn std::error::Error>> {
     return Err("Error starting sndio".into());
   }
   let mut pt = PlayTracks::new(p, r);
+  sio.write(&pt.out_buf);
   while (running.load(Ordering::SeqCst)) {
     pt.mix()?;
     sio.write(&pt.out_buf);

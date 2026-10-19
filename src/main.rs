@@ -1,5 +1,5 @@
 #![allow(warnings)]
-use std::io::self;
+use std::io;
 use lexpr::print::Options;
 use crate::actions::play::play;
 use crate::models::parse::rek_session::RekSession;
@@ -11,6 +11,7 @@ mod actions {
 
 mod models {
   pub mod audio {
+    pub mod offset;
     pub mod play_track;
     pub mod play_tracks;
   }
