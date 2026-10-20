@@ -1,4 +1,5 @@
 use sndio::Par;
+use crate::models::audio::offset::Offset;
 use crate::models::audio::play_track::PlayTrack;
 use crate::models::parse::rek_session::RekSession;
 
@@ -18,7 +19,9 @@ impl<'a> PlayTracks<'a> {
     let out_buf = vec![0; out_len];
     let chan_len = (p.appbufsz * p.bps) as usize;
     let file_buf = vec![0; chan_len];
-    let plays = tracks.iter_mut().map(move |t| PlayTrack::new(t, p)).collect();
+    let offset = Offset::from_seconds(p, r.options.io.playback.offset);
+    let plays = tracks.iter_mut()
+      .map(move |t| PlayTrack::new(t, p, offset.clone())).collect();
     Self {
       mix_buf: mix_buf,
       file_buf: file_buf,

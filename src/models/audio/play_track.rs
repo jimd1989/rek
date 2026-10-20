@@ -3,22 +3,32 @@ use std::io::BufReader;
 use std::io::ErrorKind;
 use std::io::Read;
 use sndio::Par;
+use crate::models::audio::offset::Offset;
 use crate::models::parse::track::Track;
 
 pub struct PlayTrack<'a> {
-  pub file: &'a mut BufReader<File>,
-  pub volume: &'a Vec<f64>,
+  file: &'a mut BufReader<File>,
+  volume: &'a Vec<f64>,
+  offset: Offset,
 }
 
 impl<'a> PlayTrack<'a> {
-  pub fn new(t: &'a mut Track, p: Par) -> PlayTrack<'a> {
+  pub fn new(t: &'a mut Track, p: Par, o: Offset) -> PlayTrack<'a> {
+    let local_offset = Offset::from_seconds(p, t.offset);
+    let offset = o + local_offset;
+    t.file.seek_relative(offset.fast_forward_bytes as i64);
     Self {
       file: &mut t.file,
       volume: &t.volume,
+      offset: offset,
     }
   }
   pub fn mix(&mut self, mix_buf: &mut Vec<f64>, file_buf: &mut Vec<u8>)
     -> Result<(), Box<dyn std::error::Error>> {
+    if (self.offset.is_delaying()) {
+      self.offset.decrement_delay();
+      return Ok(());
+    }
     let pchan = self.volume.len();
     file_buf.fill(0);
     match self.file.read_exact(file_buf) {
