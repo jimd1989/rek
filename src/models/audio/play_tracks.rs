@@ -20,8 +20,9 @@ impl<'a> PlayTracks<'a> {
     let chan_len = (p.appbufsz * p.bps) as usize;
     let file_buf = vec![0; chan_len];
     let offset = Offset::from_seconds(p, r.options.io.playback.offset);
+    let volume = &r.options.io.playback.volume;
     let plays = tracks.iter_mut()
-      .map(move |t| PlayTrack::new(t, p, offset.clone())).collect();
+      .map(move |t| PlayTrack::new(t, p, offset.clone(), volume)).collect();
     Self {
       mix_buf: mix_buf,
       file_buf: file_buf,
@@ -34,9 +35,8 @@ impl<'a> PlayTracks<'a> {
     for t in &mut self.tracks {
       t.mix(&mut self.mix_buf, &mut self.file_buf)?;
     }
-    let mut n = 0;
     for (f, bs) in self.mix_buf.iter().zip(self.out_buf.chunks_exact_mut(2)) {
-      let s16 = (f.tanh() * 32768.0) as i16;
+      let s16 = (f.clamp(-1.0, 1.0) * 32768.0) as i16;
       let bytes = s16.to_le_bytes();
       bs[0] = bytes[0];
       bs[1] = bytes[1];

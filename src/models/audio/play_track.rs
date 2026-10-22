@@ -13,10 +13,12 @@ pub struct PlayTrack<'a> {
 }
 
 impl<'a> PlayTrack<'a> {
-  pub fn new(t: &'a mut Track, p: Par, o: Offset) -> PlayTrack<'a> {
+  pub fn new(t: &'a mut Track, p: Par, o: Offset, v: &Vec<f64>) 
+    -> PlayTrack<'a> {
     let local_offset = Offset::from_seconds(p, t.offset);
     let offset = o + local_offset;
     t.file.seek_relative(offset.fast_forward_bytes as i64);
+    t.volume.iter_mut().zip(v).for_each(|(α, ω)| *α *= ω);
     Self {
       file: &mut t.file,
       volume: &t.volume,
