@@ -11,7 +11,7 @@ pub struct PlayTracks<'a> {
 }
 
 impl<'a> PlayTracks<'a> {
-  pub fn new(p: Par, r: &'a mut RekSession) -> PlayTracks {
+  pub fn new(p: Par, r: &'a mut RekSession, monitor: f64) -> PlayTracks {
     let tracks = &mut r.tracks;
     let mix_len = (p.appbufsz * p.pchan) as usize;
     let out_len = mix_len * (p.bps as usize);
@@ -20,7 +20,8 @@ impl<'a> PlayTracks<'a> {
     let chan_len = (p.appbufsz * p.bps) as usize;
     let file_buf = vec![0; chan_len];
     let offset = Offset::from_seconds(p, r.options.io.playback.offset);
-    let volume = &r.options.io.playback.volume;
+    let mut volume = &mut r.options.io.playback.volume;
+    volume.iter_mut().for_each(|ω| *ω *= monitor);
     let plays = tracks.iter_mut()
       .map(move |t| PlayTrack::new(t, p, offset.clone(), volume)).collect();
     Self {
