@@ -1,4 +1,5 @@
 #![allow(warnings)]
+use std::error::Error;
 use std::io;
 use lexpr::print::Options;
 use crate::actions::play::play;
@@ -14,6 +15,7 @@ mod models {
     pub mod offset;
     pub mod play_track;
     pub mod play_tracks;
+    pub mod rec_tracks;
   }
   pub mod parse {
     pub mod device_options;
@@ -33,7 +35,7 @@ mod transformers {
   pub mod device_options_to_sio_par;
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
   let i = io::stdin().lock();
   let v = lexpr::from_reader(i)?;
   let mut r = RekSession::decode(&v)?;
