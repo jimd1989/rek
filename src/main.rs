@@ -30,6 +30,7 @@ mod models {
 
 mod traits {
   pub mod sexp_decoder;
+  pub mod sexp_encoder;
 }
 
 mod transformers {

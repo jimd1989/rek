@@ -23,7 +23,7 @@ impl RecTracks {
     let mix = vec![vec![0.0; buf_frames]; ch];
     create_dir_all("tracks")?;
     let tracks = volume.into_iter().enumerate()
-      .map(|(n, v)| RecTrack::new(extant_tracks + n, *v))
+      .map(|(n, v)| RecTrack::new(extant_tracks, n, *v))
       .collect::<Result<Vec<_>, _>>()?;
     Ok(RecTracks { in_buf, tracks, mix })
   }
