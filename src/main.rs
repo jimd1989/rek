@@ -15,6 +15,7 @@ mod models {
     pub mod offset;
     pub mod play_track;
     pub mod play_tracks;
+    pub mod rec_track;
     pub mod rec_tracks;
   }
   pub mod parse {
