@@ -5,12 +5,14 @@ use std::io;
 use std::str::FromStr;
 use lexpr::print::Options;
 use crate::actions::play::play;
+use crate::actions::rec::rec;
 use crate::models::parse::cmd::Cmd;
 use crate::models::parse::rek_session::RekSession;
 use crate::traits::sexp_decoder::SexpDecoder;
 
 mod actions {
   pub mod play;
+  pub mod rec;
 }
 
 mod models {
@@ -49,9 +51,9 @@ fn main() -> Result<(), Box<dyn Error>> {
   let v = lexpr::from_reader(i)?;
   let mut r = RekSession::decode(&v)?;
   match cmd {
-    Cmd::Play => { play(&mut r); }
-    Cmd::Rec  => { play(&mut r); }
-    Cmd::Init => { play(&mut r); }
+    Cmd::Init => { play(&mut r)?; }
+    Cmd::Play => { play(&mut r)?; }
+    Cmd::Rec  => { rec(&mut r)?;  } /* merge new tracks with existing sexp */
   }
   lexpr::print::to_writer_custom(io::stdout().lock(), &v, Options::default())?;
   Ok(())

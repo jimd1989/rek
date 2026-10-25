@@ -16,7 +16,7 @@ pub struct RecTrack {
 impl RecTrack {
   pub fn new(p: Par, extant_tracks: usize, ch: usize, volume: f64) 
     -> Result<RecTrack, Box<dyn Error>> {
-      let name = format!("tracks/{0:8}.raw", extant_tracks + ch);
+      let name = format!("tracks/{0:08}.raw", extant_tracks + ch);
       let file = BufWriter::new(File::create(&name)?);
       let rchan = p.rchan as usize;
       Ok(RecTrack { name, file, volume, ch, rchan})
