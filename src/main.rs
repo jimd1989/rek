@@ -1,8 +1,11 @@
 #![allow(warnings)]
+use std::env::args;
 use std::error::Error;
 use std::io;
+use std::str::FromStr;
 use lexpr::print::Options;
 use crate::actions::play::play;
+use crate::models::parse::cmd::Cmd;
 use crate::models::parse::rek_session::RekSession;
 use crate::traits::sexp_decoder::SexpDecoder;
 
@@ -19,6 +22,7 @@ mod models {
     pub mod rec_tracks;
   }
   pub mod parse {
+    pub mod cmd;
     pub mod device_options;
     pub mod playback_options;
     pub mod recording_options;
@@ -38,10 +42,17 @@ mod transformers {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
+  let cmd = args().nth(1)
+    .ok_or_else(|| "needs REC | PLAY | INIT".to_string())
+    .and_then(|ω| Cmd::from_str(&ω))?;
   let i = io::stdin().lock();
   let v = lexpr::from_reader(i)?;
   let mut r = RekSession::decode(&v)?;
-  play(&mut r);
+  match cmd {
+    Cmd::Play => { play(&mut r); }
+    Cmd::Rec  => { play(&mut r); }
+    Cmd::Init => { play(&mut r); }
+  }
   lexpr::print::to_writer_custom(io::stdout().lock(), &v, Options::default())?;
   Ok(())
 }
