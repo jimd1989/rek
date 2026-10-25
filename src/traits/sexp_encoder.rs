@@ -1,5 +1,8 @@
 use lexpr::Value;
 
 pub trait SexpEncoder<A> {
-  fn encode(a: &A) -> Result<Value, String>;
+  fn kv<B: Into<Value>>(k: &str, v: B) -> Value {
+    Value::list(vec![Value::symbol(k), v.into()])
+  }
+  fn encode(&self) -> Value;
 }
