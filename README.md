@@ -1,4 +1,4 @@
-## rek
+# rek
 
 rek is a multi-track audio recorder that operates as follows:
 
@@ -20,7 +20,7 @@ rek <init | play | rec> <piped stdin>
 
 - `init` prints a starting project state s-expression.
 - `play` plays back already recorded tracks.
-- `rec` records new tracks and adds them to project state.
+- `rec` records new tracks, n monophonic files for n channels, and adds them to project state.
 
 The entire s-expression should be copied into stdin for each invocation.
 
