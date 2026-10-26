@@ -4,6 +4,7 @@ use std::error::Error;
 use std::io;
 use std::str::FromStr;
 use lexpr::print::Options;
+use crate::actions::init::init;
 use crate::actions::play::play;
 use crate::actions::rec::rec;
 use crate::models::parse::cmd::Cmd;
@@ -12,6 +13,7 @@ use crate::traits::sexp_decoder::SexpDecoder;
 use crate::transformers::append_new_tracks::append_new_tracks;
 
 mod actions {
+  pub mod init;
   pub mod play;
   pub mod rec;
 }
@@ -50,16 +52,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     .ok_or_else(|| "needs REC | PLAY | INIT".to_string())
     .and_then(|ω| Cmd::from_str(&ω))?;
   let i = io::stdin().lock();
-  let mut v = lexpr::from_reader(i)?;
-  let mut r = RekSession::decode(&v)?;
   match cmd {
-    Cmd::Init => { play(&mut r)?; }
-    Cmd::Play => { play(&mut r)?; }
+    Cmd::Init => { 
+      init(); 
+    }
+    Cmd::Play => { 
+      let v = lexpr::from_reader(i)?;
+      let mut r = RekSession::decode(&v)?;
+      play(&mut r)?; 
+      println!("{}", v.to_string());
+    }
     Cmd::Rec  => { 
+      let mut v = lexpr::from_reader(i)?;
+      let mut r = RekSession::decode(&v)?;
       let new_tracks = rec(&mut r)?;
       v = append_new_tracks(v, new_tracks);
+      println!("{}", v.to_string());
     }
   }
-  lexpr::print::to_writer_custom(io::stdout().lock(), &v, Options::default())?;
   Ok(())
 }
