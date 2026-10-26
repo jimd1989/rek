@@ -25,8 +25,8 @@ impl<'a> PlayTrack<'a> {
       offset: offset,
     }
   }
-  pub fn mix(&mut self, mix_buf: &mut Vec<f64>, file_buf: &mut Vec<u8>)
-    -> Result<(), Box<dyn std::error::Error>> {
+  pub fn mix(&mut self, mix_buf: &mut [f64], file_buf: &mut [u8])
+    -> std::io::Result<()> {
     if (self.offset.is_delaying()) {
       self.offset.decrement_delay();
       return Ok(());
@@ -36,7 +36,7 @@ impl<'a> PlayTrack<'a> {
     match self.file.read_exact(file_buf) {
         Ok(()) => {}
         Err(e) if e.kind() == ErrorKind::UnexpectedEof => {} /* no problem */
-        Err(e) => return Err(Box::new(e)), /* actual IO error */
+        Err(e) => return Err(e), /* actual IO error */
     }
     for (frame_n, bytes) in file_buf.chunks_exact(2).enumerate() {
       let s16 = i16::from_le_bytes([bytes[0], bytes[1]]);

@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::fs::File;
-use std::io::BufWriter;
+use std::io::{BufWriter, Write};
 use lexpr::Value;
 use sndio::Par;
 use crate::traits::sexp_encoder::SexpEncoder;
@@ -20,6 +20,12 @@ impl RecTrack {
       let file = BufWriter::new(File::create(&name)?);
       let rchan = p.rchan as usize;
       Ok(RecTrack { name, file, volume, ch, rchan})
+  }
+  pub fn write(&mut self, mix: &[f64]) -> std::io::Result<()> {
+    mix.iter().try_for_each(|s| {
+      let bytes = (s * self.volume).to_le_bytes();
+      self.file.write_all(&bytes)
+    })
   }
 }
 
