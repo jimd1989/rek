@@ -65,6 +65,9 @@ impl SexpDecoder for BufReader<File> {
 
 impl<A: SexpDecoder> SexpDecoder for Vec<A> {
   fn decode(v: &Value) -> Result<Self, String> {
+    if v.is_nil() || v.is_null() {
+      return Ok(Vec::new());
+    }
     let ω = v.as_cons().ok_or_else(|| format!("Expected list, got {:?}", v))?;
     ω.list_iter()
       .enumerate()
