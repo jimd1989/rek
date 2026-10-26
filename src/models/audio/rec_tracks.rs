@@ -29,6 +29,21 @@ impl RecTracks {
       .collect::<Result<Vec<_>, _>>()?;
     Ok(RecTracks { in_buf, tracks, mix })
   }
+  pub fn mix(&mut self) -> std::io::Result<()> {
+    let rchan = self.mix.len();
+    self.in_buf.chunks_exact(2).enumerate().for_each(|(n, bs)| {
+      let s = i16::from_le_bytes([bs[0], bs[1]]);
+      let f = (s as f64) / 32768.0;
+      let ch = n % rchan;
+      let frame = n / rchan;
+      self.mix[ch][frame] = f;
+    });
+    self.tracks.iter_mut().zip(&self.mix).try_for_each(|(t, b)| t.write(b))?;
+    Ok(())
+  }
+  pub fn flush(&mut self) -> std::io::Result<()> {
+    self.tracks.iter_mut().try_for_each(|t| t.flush())
+  }
 }
 
 impl SexpEncoder<RecTracks> for RecTracks {

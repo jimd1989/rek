@@ -23,9 +23,14 @@ impl RecTrack {
   }
   pub fn write(&mut self, mix: &[f64]) -> std::io::Result<()> {
     mix.iter().try_for_each(|s| {
-      let bytes = (s * self.volume).to_le_bytes();
+      let normalized = (s * self.volume).clamp(-1.0, 1.0);
+      let s = (normalized * 32767.0).round() as i16;
+      let bytes = s.to_le_bytes();
       self.file.write_all(&bytes)
     })
+  }
+  pub fn flush(&mut self) -> std::io::Result<()> {
+    self.file.flush()
   }
 }
 

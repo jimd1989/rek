@@ -44,7 +44,8 @@ pub fn rec(r: &mut RekSession) -> Result<Value, Box<dyn std::error::Error>> {
     return Err("Error starting sndio".into());
   }
   let mut rt = RecTracks::new(p, r)?;
-  let mut pt = PlayTracks::new(p, r, 1.0);
+  let monitor = r.options.io.playback.monitor;
+  let mut pt = PlayTracks::new(p, r, monitor);
   let mut primed_bytes = 0;
   let primed_requirement = (p.bufsz * p.pchan * p.bps) as usize;
   while primed_bytes < primed_requirement {
@@ -52,12 +53,14 @@ pub fn rec(r: &mut RekSession) -> Result<Value, Box<dyn std::error::Error>> {
   }
   while (running.load(Ordering::SeqCst)) {
     sio.read(&mut rt.in_buf);
+    rt.mix()?;
     pt.mix()?;
     sio.write(&pt.out_buf);
   }
   if !(sio.stop()) {
     return Err("Error stopping sndio".into());
   }
+  rt.flush()?;
   let new_tracks = rt.encode();
   Ok(new_tracks)
 }

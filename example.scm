@@ -2,7 +2,7 @@
    ((io 
       (((device "default")
         (recording ((channels 2) (volume (1.0 1.0))))
-        (playback ((channels 2) (volume (0.5 0.5)))))
+        (playback ((monitor 1.0) (channels 2) (volume (0.5 0.5)))))
        ; For drift reasons, only the first device is opened, but it's good to
        ; specify all inputs/outputs. Just move the target device to the top of
        ; this list.

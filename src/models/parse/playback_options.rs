@@ -1,7 +1,7 @@
 use lexpr::Value;
 use crate::traits::sexp_decoder::SexpDecoder;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PlaybackOptions {
   pub channels: u32,
   pub volume: Vec<f64>,
@@ -34,7 +34,7 @@ impl SexpDecoder for PlaybackOptions {
       (n, (Some(vo))) => Err(format!("{} channels; {} volume", n, vo.len())),
     }?;
     let offset = off.unwrap_or(0.0);
-    let monitor = off.unwrap_or(0.0);
+    let monitor = mon.unwrap_or(0.0);
     Ok(PlaybackOptions { channels, volume, monitor, offset })
   }
 }
