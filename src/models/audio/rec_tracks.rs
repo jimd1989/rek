@@ -15,6 +15,7 @@ pub struct RecTracks {
 
 impl RecTracks {
   pub fn new(p: Par, r: &RekSession) -> Result<RecTracks, Box<dyn Error>> {
+    let offset = r.options.io.playback.offset;
     let extant_tracks = r.tracks.len();
     let ch = p.rchan as usize;
     let buf_frames = p.appbufsz as usize;
@@ -25,7 +26,7 @@ impl RecTracks {
     let mix = vec![vec![0.0; buf_frames]; ch];
     create_dir_all("tracks")?;
     let tracks = volume.into_iter().enumerate()
-      .map(|(n, v)| RecTrack::new(p, extant_tracks, n, *v))
+      .map(|(n, v)| RecTrack::new(p, extant_tracks, n, *v, offset))
       .collect::<Result<Vec<_>, _>>()?;
     Ok(RecTracks { in_buf, tracks, mix })
   }
@@ -46,7 +47,7 @@ impl RecTracks {
   }
 }
 
-impl SexpEncoder<RecTracks> for RecTracks {
+impl SexpEncoder for RecTracks {
   fn encode(&self) -> Value {
     Value::list(self.tracks.iter().map(|ω| ω.encode()))
   }

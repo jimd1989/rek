@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use lexpr::Value;
 use sndio::Par;
+use crate::models::audio::offset::Offset;
 use crate::traits::sexp_encoder::SexpEncoder;
 
 pub struct RecTrack {
@@ -11,15 +12,17 @@ pub struct RecTrack {
   volume: f64,
   ch: usize,
   rchan: usize,
+  offset: Offset,
 }
 
 impl RecTrack {
-  pub fn new(p: Par, extant_tracks: usize, ch: usize, volume: f64) 
+  pub fn new(p: Par, extant_tracks: usize, ch: usize, volume: f64, o: f64) 
     -> Result<RecTrack, Box<dyn Error>> {
+      let offset = Offset::from_seconds(p, o);
       let name = format!("tracks/{0:08}.raw", extant_tracks + ch);
       let file = BufWriter::new(File::create(&name)?);
       let rchan = p.rchan as usize;
-      Ok(RecTrack { name, file, volume, ch, rchan})
+      Ok(RecTrack { name, file, volume, ch, rchan, offset })
   }
   pub fn write(&mut self, mix: &[f64]) -> std::io::Result<()> {
     mix.iter().try_for_each(|s| {
@@ -34,13 +37,14 @@ impl RecTrack {
   }
 }
 
-impl SexpEncoder<RecTrack> for RecTrack {
+impl SexpEncoder for RecTrack {
   fn encode(&self) -> Value {
     let mut vols = vec![0.0; self.rchan];
     vols[self.ch] = 1.0;
     Value::list(vec![
       Self::kv("tag", Value::symbol("your-tag-here")),
       Self::kv("volume", Value::list(vols)),
+      Offset::encode(&self.offset),
       Self::kv("file", Value::string(self.name.clone())),
     ])
   }
