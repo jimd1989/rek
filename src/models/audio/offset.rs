@@ -48,13 +48,38 @@ impl Offset {
 impl Add for Offset {
   type Output = Self;
   fn add(self, ω: Self) -> Self::Output {
-    Self {
-      delay_cycles: self.delay_cycles + ω.delay_cycles,
-      fast_forward_bytes: self.fast_forward_bytes + ω.fast_forward_bytes,
-      delay: 0,
-      appbufsz: self.appbufsz,
-      bps: self.bps,
-      rate: self.rate,
+    let master_frames = if self.delay_cycles > 0 {
+      -1 * (self.delay_cycles as i64 * self.appbufsz as i64)
+    } else {
+      (self.fast_forward_bytes as i64) / (self.bps as i64)
+    };
+    let local_frames = if ω.delay_cycles > 0 {
+      -1 * (ω.delay_cycles as i64 * ω.appbufsz as i64)
+    } else {
+      (ω.fast_forward_bytes as i64) / (ω.bps as i64)
+    };
+    let frames = master_frames + local_frames;
+    if frames < 0 {
+      let positive = (-1 * frames) as u32;
+      let delay_cycles = positive / self.appbufsz;
+      Self {
+        delay_cycles: delay_cycles,
+        fast_forward_bytes: 0,
+        delay: 0,
+        appbufsz: self.appbufsz,
+        bps: self.bps,
+        rate: self.rate,
+      }
+    } else {
+      let ff = (frames as u32) * self.bps;
+      Self {
+        delay_cycles: 0,
+        fast_forward_bytes: ff,
+        delay: 0,
+        appbufsz: self.appbufsz,
+        bps: self.bps,
+        rate: self.rate,
+      }
     }
   }
 }
