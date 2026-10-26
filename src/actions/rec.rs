@@ -16,8 +16,7 @@ pub fn rec(r: &mut RekSession) -> Result<Value, Box<dyn std::error::Error>> {
   let mut p = Sndio::init_par();
   let o = &r.options.io;
   let dev = o.device.as_deref().map(CString::new).transpose()?;
-  let mode = Mode::PLAY;
-  /* let mode = Mode::PLAY | Mode::REC; //eventually */
+  let mode = Mode::PLAY | Mode::REC;
   let mut sio = Sndio::open(dev.as_deref(), mode, false)
     .ok_or_else(|| "Error starting sndio")?;
   device_options_to_sio_par(&r.options.io, &mut p);
@@ -46,9 +45,13 @@ pub fn rec(r: &mut RekSession) -> Result<Value, Box<dyn std::error::Error>> {
   }
   let mut rt = RecTracks::new(p, r)?;
   let mut pt = PlayTracks::new(p, r, 1.0);
-  sio.write(&pt.out_buf);
+  let mut primed_bytes = 0;
+  let primed_requirement = (p.bufsz * p.pchan * p.bps) as usize;
+  while primed_bytes < primed_requirement {
+    primed_bytes += sio.write(&pt.out_buf);
+  }
   while (running.load(Ordering::SeqCst)) {
-    /* eventually actually record */
+    sio.read(&mut rt.in_buf);
     pt.mix()?;
     sio.write(&pt.out_buf);
   }

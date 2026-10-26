@@ -9,7 +9,7 @@ use crate::traits::sexp_encoder::SexpEncoder;
 
 pub struct RecTracks {
   pub in_buf: Vec<u8>,
-  pub tracks: Vec<RecTrack>,
+  tracks: Vec<RecTrack>,
   mix: Vec<Vec<f64>>,
 }
 
